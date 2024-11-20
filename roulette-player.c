@@ -9,7 +9,7 @@ typedef struct {
 } PlayerObject;
 
 static void
-Player_dealloc(PlayerObject *self)
+Player_dealloc(const PlayerObject *self)
 {
     Py_XDECREF(self->history);
     Py_XDECREF(self->bet_sizes);
@@ -18,10 +18,9 @@ Player_dealloc(PlayerObject *self)
 }
 
 static PyObject *
-Player_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+    Player_new(PyTypeObject *type, PyObject *args __attribute__((unused)), PyObject *keywords __attribute__((unused)))
 {
-    PlayerObject *self;
-    self = (PlayerObject *) type->tp_alloc(type, 0);
+    PlayerObject *self = (PlayerObject *) type->tp_alloc(type, 0);
     if (self != NULL) {
         self->history = PyList_New(0);
         self->bet_sizes = PyList_New(0);
@@ -37,12 +36,12 @@ Player_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-Player_init(PlayerObject *self, PyObject *args, PyObject *kwds)
+Player_init(PlayerObject *self, PyObject *args, PyObject *keywords)
 {
     static char *kwlist[] = {"initial_bankroll", NULL};
     long initial_bankroll = 100000;  // Default value: 1000.00 in cents
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|l", kwlist, &initial_bankroll))
+    if (!PyArg_ParseTupleAndKeywords(args, keywords, "|l", kwlist, &initial_bankroll))
         return -1;
 
     self->bankroll = initial_bankroll;
@@ -50,13 +49,13 @@ Player_init(PlayerObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-Player_add_game(PlayerObject *self, PyObject *args, PyObject *kwds)
+Player_add_game(PlayerObject *self, PyObject *args, PyObject *keywords)
 {
     static char *kwlist[] = {"result", "bet_size", "number", NULL};
     long result, bet_size;
     int number;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "lli", kwlist, &result, &bet_size, &number))
+    if (!PyArg_ParseTupleAndKeywords(args, keywords, "lli", kwlist, &result, &bet_size, &number))
         return NULL;
 
     PyObject *result_obj = PyLong_FromLong(result);
@@ -88,31 +87,31 @@ Player_add_game(PlayerObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-Player_get_history(PlayerObject *self, PyObject *Py_UNUSED(ignored))
+Player_get_history(const PlayerObject *self, PyObject *Py_UNUSED(ignored))
 {
     return PyList_GetSlice(self->history, 0, PyList_Size(self->history));
 }
 
 static PyObject *
-Player_get_bet_sizes(PlayerObject *self, PyObject *Py_UNUSED(ignored))
+Player_get_bet_sizes(const PlayerObject *self, PyObject *Py_UNUSED(ignored))
 {
     return PyList_GetSlice(self->bet_sizes, 0, PyList_Size(self->bet_sizes));
 }
 
 static PyObject *
-Player_get_numbers_bet(PlayerObject *self, PyObject *Py_UNUSED(ignored))
+Player_get_numbers_bet(const PlayerObject *self, PyObject *Py_UNUSED(ignored))
 {
     return PyList_GetSlice(self->numbers_bet, 0, PyList_Size(self->numbers_bet));
 }
 
 static PyObject *
-Player_get_bankroll(PlayerObject *self, PyObject *Py_UNUSED(ignored))
+Player_get_bankroll(const PlayerObject *self, PyObject *Py_UNUSED(ignored))
 {
     return PyLong_FromLong(self->bankroll);
 }
 
 static PyObject *
-Player_get_stats(PlayerObject *self, PyObject *Py_UNUSED(ignored))
+Player_get_stats(const PlayerObject *self, PyObject *Py_UNUSED(ignored))
 {
     PyObject *stats = PyDict_New();
     if (stats == NULL)
@@ -140,10 +139,9 @@ Player_get_stats(PlayerObject *self, PyObject *Py_UNUSED(ignored))
     PyDict_SetItemString(stats, "max_loss", PyLong_FromLong(max_loss));
     PyDict_SetItemString(stats, "wins", PyLong_FromLong(wins));
     if (num_games > 0) {
-        PyDict_SetItemString(stats, "win_rate", 
-            PyFloat_FromDouble((double)wins / num_games * 100));
+        PyDict_SetItemString(stats, "win_rate",
+            PyFloat_FromDouble((double)wins / (double)num_games * 100.0));
     }
-
     return stats;
 }
 
@@ -186,12 +184,10 @@ static PyModuleDef casino_player_module = {
 PyMODINIT_FUNC
 PyInit_casino_player(void)
 {
-    PyObject *m;
-    
     if (PyType_Ready(&PlayerType) < 0)
         return NULL;
 
-    m = PyModule_Create(&casino_player_module);
+    PyObject *m = PyModule_Create(&casino_player_module);
     if (m == NULL)
         return NULL;
 
