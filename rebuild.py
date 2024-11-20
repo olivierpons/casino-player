@@ -71,7 +71,13 @@ def clean_build_files() -> None:
     print_header("Cleaning up old build files")
 
     # Directories to remove
-    dirs_to_remove = ["build", "dist", "casino_player.egg-info", "__pycache__"]
+    dirs_to_remove = [
+        "build",
+        "dist",
+        "casino_player.egg-info",
+        "__pycache__",
+        "cmake-build-debug",
+    ]
 
     # Find and remove build directories
     for directory in dirs_to_remove:
@@ -110,6 +116,27 @@ def check_python_version() -> None:
         print_success(f"Using Python {version[0]}.{version[1]}.{version[2]}")
 
 
+def build_cmake() -> None:
+    """Configure and build with CMake"""
+    print_header("Building with CMake")
+
+    # Créer et configurer le build
+    cmake_commands = [
+        ("cmake -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug .", "Configuring CMake"),
+        ("cmake --build cmake-build-debug --config Debug", "Building with CMake"),
+    ]
+
+    for command, description in cmake_commands:
+        return_code, stdout, stderr = run_command(command, description)
+        if return_code != 0:
+            print_error(f"Error during {description}")
+            print_error(f"Command output:\n{stdout}")
+            print_error(f"Error output:\n{stderr}")
+            sys.exit(1)
+        else:
+            print_success(description + " completed")
+
+
 def build_and_install() -> None:
     """Build and install the package"""
     commands = [
@@ -129,6 +156,7 @@ def build_and_install() -> None:
         else:
             print_success(description + " completed")
 
+
 def run_tests() -> None:
     """Run the test suite"""
     if os.path.exists("test_memory.py"):
@@ -144,6 +172,36 @@ def run_tests() -> None:
             print_success("All tests passed")
     else:
         print_warning("No test file found (test_memory.py)")
+
+
+def copy_stub_file() -> None:
+    """Copy the stub file to the installation directory"""
+    print_header("Installing documentation stub")
+
+    venv_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".venv")
+    site_packages = None
+
+    for root, dirs, files in os.walk(venv_dir):
+        if root.endswith("site-packages"):
+            site_packages = root
+            break
+
+    if site_packages:
+        for item in os.listdir(site_packages):
+            if "casino_player" in item:
+                target_dir = os.path.join(site_packages, item)
+                if item.endswith(".egg"):
+                    target_dir = os.path.join(target_dir, "casino_player")
+
+                try:
+                    shutil.copy2("casino_player.pyi", target_dir)
+                    print_success(f"Documentation stub copied to {target_dir}")
+                    return
+                except Exception as e:
+                    print_error(f"Failed to copy stub file: {str(e)}")
+                    return
+
+    print_error("Could not find installation directory")
 
 
 def main() -> None:
@@ -162,7 +220,9 @@ def main() -> None:
         # Run all build steps
         check_python_version()
         clean_build_files()
+        build_cmake()
         build_and_install()
+        copy_stub_file()
         run_tests()
 
         # Calculate and display execution time
