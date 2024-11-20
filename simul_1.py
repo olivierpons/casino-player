@@ -26,7 +26,7 @@ class ZeroNeighboursStrategy:
 
     def _calculate_progression_bet(self) -> int:
         """Calculate bet amount based on loss progression"""
-        multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
+        multiplier = min(2 ** self.consecutive_losses, 2 ** self.max_progression)
         return int(self.base_bet * multiplier)  # Ensure integer
 
     def calculate_bets(self) -> List[PlacedBet]:

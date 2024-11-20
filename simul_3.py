@@ -14,7 +14,7 @@ from casino.table import Casino
 
 def print_round_results(round_number: int, results: Dict[str, any]):
     """Print results of a casino round in a formatted table with winning/losing bets"""
-    print(f"\n=== Round {round_number} ===")
+    print(f"=== Round {round_number} ===")
 
     # Collect all data for tables with active players
     active_tables = []

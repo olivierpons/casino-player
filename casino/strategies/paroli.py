@@ -19,7 +19,7 @@ class ParoliStrategy(Strategy):
     def calculate_bets(self) -> List[PlacedBet]:
         """Calculate next bet using Paroli progression"""
         # Double bet after each win up to max_progression
-        multiplier = min(2**self.consecutive_wins, 2**self.max_progression)
+        multiplier = min(2 ** self.consecutive_wins, 2 ** self.max_progression)
         current_bet = int(self.base_bet * multiplier)
 
         return [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
