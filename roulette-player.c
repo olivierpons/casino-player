@@ -165,7 +165,7 @@ static PyMethodDef Player_methods[] = {
 
 static PyTypeObject PlayerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "roulette.Player",
+    .tp_name = "casino_player.Player",
     .tp_doc = PyDoc_STR("Roulette player object to track game history and statistics (all monetary values in cents)"),
     .tp_basicsize = sizeof(PlayerObject),
     .tp_itemsize = 0,
@@ -176,22 +176,22 @@ static PyTypeObject PlayerType = {
     .tp_methods = Player_methods,
 };
 
-static PyModuleDef roulette_module = {
+static PyModuleDef casino_player_module = {
     PyModuleDef_HEAD_INIT,
-    .m_name = "roulette",
+    .m_name = "casino_player",
     .m_doc = "Module for tracking roulette player statistics (all monetary values in cents)",
     .m_size = -1,
 };
 
 PyMODINIT_FUNC
-PyInit_roulette(void)
+PyInit_casino_player(void)
 {
     PyObject *m;
     
     if (PyType_Ready(&PlayerType) < 0)
         return NULL;
 
-    m = PyModule_Create(&roulette_module);
+    m = PyModule_Create(&casino_player_module);
     if (m == NULL)
         return NULL;
 
