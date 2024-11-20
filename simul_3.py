@@ -1,6 +1,3 @@
-# main.py
-
-import time
 from typing import Dict
 
 from tabulate import tabulate
@@ -16,36 +13,50 @@ from casino.table import Casino
 
 
 def print_round_results(round_number: int, results: Dict[str, any]):
-    """Print results of a casino round in a formatted table"""
+    """Print results of a casino round in a formatted table with winning/losing bets"""
     print(f"\n=== Round {round_number} ===")
 
     # Collect all data for tables with active players
     active_tables = []
     for table_id, table_results in results.items():
         if table_results["players_results"]:
-            table_data = []
-
-            # Header row for the table with winning number
-            table_data.append(
+            table_data = [
                 [
                     "Table " + table_id,
                     f"Winning Number: {table_results['winning_number']}",
                     "",
                     "",
-                ]
-            )
-
-            # Column headers
-            table_data.append(["Player", "Bet", "Profit", "Bankroll"])
+                    "",
+                    "",
+                    ],
+                ["Player", "Total Bet", "Profit", "Bankroll", "Winning Bets", "Losing Bets"],
+            ]
 
             # Add player data
             for player_id, stats in table_results["players_results"].items():
+                winning_bets = stats.get('winning_bets', [])
+                losing_bets = stats.get('losing_bets', [])
+
+                # Format winning bets string
+                winning_str = "\n".join([
+                    f"{bet.bet_type}: €{bet.amount/100:.2f}"
+                    for bet in winning_bets
+                ]) if winning_bets else ""
+
+                # Format losing bets string
+                losing_str = "\n".join([
+                    f"{bet.bet_type}: €{bet.amount/100:.2f}"
+                    for bet in losing_bets
+                ]) if losing_bets else ""
+
                 table_data.append(
                     [
                         player_id,
                         f"€{stats['total_bet']/100:>8.2f}",
                         f"€{stats['profit']/100:>+8.2f}",
                         f"€{stats['bankroll']/100:>10.2f}",
+                        winning_str,
+                        losing_str,
                     ]
                 )
 
@@ -59,12 +70,12 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                 table_data[1:],  # Skip the header row for tabulate
                 headers="firstrow",
                 tablefmt="pretty",
-                colalign=("left", "right", "right", "right"),
+                colalign=("left", "right", "right", "right", "left", "left"),
             )
         )
 
 
-def run_strategy_comparison(num_rounds: int = 5000):
+def run_strategy_comparison(*, num_rounds: int):
     """Run simulation with different strategies"""
     casino = Casino()
 
@@ -81,8 +92,8 @@ def run_strategy_comparison(num_rounds: int = 5000):
     players = [
         Player(
             player_id="martingale",
-            initial_bankroll=1000_00,  # 1000€
-            strategy=MartingaleStrategy(base_bet=1_00, max_progression=6),
+            initial_bankroll=1000_00,
+            strategy=MartingaleStrategy(base_bet=1_00, max_progression=4),
         ),
         Player(
             player_id="dalembert",
@@ -97,17 +108,21 @@ def run_strategy_comparison(num_rounds: int = 5000):
         Player(
             player_id="sequence",
             initial_bankroll=1000_00,
-            strategy=SequenceStrategy("custom_sequence.json", base_bet=100),
+            strategy=SequenceStrategy("custom_sequence.json", base_bet=1_00),
         ),
         Player(
             player_id="zero",
             initial_bankroll=1000_00,
-            strategy=ZeroTrendStrategy(base_bet=100, zero_threshold=5, history_size=100),
+            strategy=ZeroTrendStrategy(
+                base_bet=1_00, zero_threshold=5, history_size=100
+            ),
         ),
         Player(
             player_id="enhanced_zero",
             initial_bankroll=1000_00,
-            strategy=EnhancedZeroTrendStrategy(base_bet=100, zero_threshold=5, history_size=100),
+            strategy=EnhancedZeroTrendStrategy(
+                base_bet=1_00, zero_threshold=5, history_size=100
+            ),
         ),
     ]
 
@@ -124,4 +139,4 @@ def run_strategy_comparison(num_rounds: int = 5000):
 
 
 if __name__ == "__main__":
-    run_strategy_comparison(num_rounds=5000)
+    run_strategy_comparison(num_rounds=100)

@@ -18,7 +18,6 @@ class MartingaleStrategy(Strategy):
     def calculate_bets(self) -> List[PlacedBet]:
         """Calculate next bet based on Martingale progression"""
         # Calculate bet amount: base_bet * 2^losses, but limit the progression
-        multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
+        multiplier = min(2 ** self.consecutive_losses, 2 ** self.max_progression)
         current_bet = int(self.base_bet * multiplier)
-
         return [PlacedBet(bet_type=self.color, amount=current_bet)]

@@ -41,10 +41,10 @@ class SequenceStrategy(Strategy):
 
         return [PlacedBet(bet_type=sequence_entry["bet_type"], amount=current_bet)]
 
-    def update_after_spin(self, won: bool):
+    def update_after_spin(self, *, won: bool, number: int):
         """Move to next position in sequence"""
         self.current_position = (self.current_position + 1) % len(self.sequence)
-        super().update_after_spin(won)
+        super().update_after_spin(won=won, number=number)
 
     @staticmethod
     def create_sequence_file(filename: str, sequence: List[Dict]):

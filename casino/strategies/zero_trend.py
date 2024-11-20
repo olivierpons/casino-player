@@ -74,7 +74,7 @@ class ZeroTrendStrategy(Strategy):
 
         return bets
 
-    def update_after_spin(self, won: bool, number: int = None):
+    def update_after_spin(self, *, won: bool, number: int):
         """
         Update strategy state after a spin
 
@@ -82,7 +82,7 @@ class ZeroTrendStrategy(Strategy):
             won: Whether any bet was won
             number: The actual number that came up
         """
-        super().update_after_spin(won)
+        super().update_after_spin(won=won, number=number)
 
         if number is not None:
             self.update_history(number)

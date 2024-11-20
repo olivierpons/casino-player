@@ -24,7 +24,7 @@ class DAlembertStrategy(Strategy):
 
         return [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
 
-    def update_after_spin(self, won: bool):
+    def update_after_spin(self, *, won: bool, number: int):
         """Update progression level after spin result"""
         if won:
             # Decrease level after win

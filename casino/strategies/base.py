@@ -24,7 +24,7 @@ class Strategy(ABC):
         """Calculate bets for the next round"""
         pass
 
-    def update_after_spin(self, won: bool):
+    def update_after_spin(self, *, won: bool, number: int):
         """Update strategy state after a spin"""
         if won:
             self.consecutive_losses = 0

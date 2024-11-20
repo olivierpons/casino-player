@@ -59,6 +59,8 @@ class CasinoTable:
             bets = player_bets[player_id]
             total_profit = 0
             total_bet = 0
+            winning_bets = []
+            losing_bets = []
 
             for bet in bets:
                 total_bet += bet.amount
@@ -66,8 +68,10 @@ class CasinoTable:
                     payout_multiplier = self.roulette.get_payout(bet.bet_type)
                     profit = bet.amount + int(bet.amount * payout_multiplier)
                     total_profit += profit
+                    winning_bets.append(bet)
                 else:
                     total_profit -= bet.amount
+                    losing_bets.append(bet)
 
             player.update_after_round(total_profit, total_bet, winning_number)
 
@@ -75,6 +79,8 @@ class CasinoTable:
                 "profit": total_profit,
                 "total_bet": total_bet,
                 "bankroll": player.get_current_bankroll(),
+                "winning_bets": winning_bets,
+                "losing_bets": losing_bets,
             }
 
             if player.should_leave():

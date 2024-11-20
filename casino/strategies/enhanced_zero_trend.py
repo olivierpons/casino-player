@@ -10,11 +10,11 @@ class EnhancedZeroTrendStrategy(ZeroTrendStrategy):
     """
 
     def __init__(
-            self,
-            base_bet: int = 100,
-            max_progression: int = 4,
-            zero_threshold: int = 5,
-            history_size: int = 100,
+        self,
+        base_bet: int = 100,
+        max_progression: int = 4,
+        zero_threshold: int = 5,
+        history_size: int = 100,
     ):
         super().__init__(base_bet, max_progression, zero_threshold, history_size)
         self.consecutive_near_misses = 0
@@ -32,7 +32,7 @@ class EnhancedZeroTrendStrategy(ZeroTrendStrategy):
 
         bets = []
         current_bet = self.base_bet * (
-                2 ** min(self.consecutive_losses, self.max_progression)
+            2 ** min(self.consecutive_losses, self.max_progression)
         )
 
         # Always bet on straight zero when active
@@ -52,9 +52,9 @@ class EnhancedZeroTrendStrategy(ZeroTrendStrategy):
 
         return bets
 
-    def update_after_spin(self, won: bool, number: int = None):
+    def update_after_spin(self, *, won: bool, number: int):
         """Enhanced update with near miss tracking"""
-        super().update_after_spin(won, number)
+        super().update_after_spin(won=won, number=number)
 
         if number is not None:
             if self.is_near_miss(number):

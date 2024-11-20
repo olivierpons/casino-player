@@ -24,7 +24,7 @@ class ParoliStrategy(Strategy):
 
         return [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
 
-    def update_after_spin(self, won: bool):
+    def update_after_spin(self, *, won: bool, number: int):
         """Update progression after spin result"""
         if won:
             self.consecutive_wins += 1
@@ -35,4 +35,4 @@ class ParoliStrategy(Strategy):
             # Reset after any loss
             self.consecutive_wins = 0
         # Update parent class tracking
-        super().update_after_spin(won)
+        super().update_after_spin(won=won, number=number)
