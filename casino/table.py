@@ -79,6 +79,7 @@ class CasinoTable:
                 "profit": total_profit,
                 "total_bet": total_bet,
                 "bankroll": player.get_current_bankroll(),
+                "initial_bankroll": player.get_initial_bankroll(),  # Utilisation de la nouvelle méthode
                 "winning_bets": winning_bets,
                 "losing_bets": losing_bets,
             }

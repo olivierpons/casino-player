@@ -16,10 +16,14 @@ class Player:
 
     def __init__(self, player_id: str, initial_bankroll: int, strategy: Strategy):
         self.player_id = player_id
+        self.initial_bankroll = initial_bankroll
         self.stats_tracker = casino_player.Player(initial_bankroll)
         self.strategy = strategy
         self.rounds_played = 0
         self.status = PlayerStatus.WAITING
+
+    def get_initial_bankroll(self) -> int:
+        return self.initial_bankroll
 
     def get_current_bankroll(self) -> int:
         return self.stats_tracker.get_bankroll()
