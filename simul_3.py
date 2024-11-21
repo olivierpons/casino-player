@@ -3,15 +3,27 @@ from typing import Dict
 from tabulate import tabulate
 
 from casino.player import Player
+from casino.strategies.adaptive_distribution import AdaptiveDistributionStrategy
+from casino.strategies.column_pattern import ColumnPatternStrategy
+from casino.strategies.corner_momentum import CornerMomentumStrategy
 from casino.strategies.dalembert import DAlembertStrategy
+from casino.strategies.dynamic_sectors import DynamicSectorsStrategy
 from casino.strategies.enhanced_zero_trend import EnhancedZeroTrendStrategy
 from casino.strategies.fibonacci import FibonacciStrategy
+from casino.strategies.hot_cold_sectors import HotColdSectorsStrategy
+from casino.strategies.hybrid_martingale import HybridMartingaleStrategy
 from casino.strategies.james_bond import JamesBondStrategy
 from casino.strategies.labouchere import LabouchereStrategy
 from casino.strategies.martingale import MartingaleStrategy
+from casino.strategies.multi_pattern import MultiPatternStrategy
+from casino.strategies.opposite_sectors import OppositeSectorsStrategy
 from casino.strategies.paroli import ParoliStrategy
+from casino.strategies.progressive_coverage import ProgressiveCoverageStrategy
+from casino.strategies.sector_chain import SectorChainStrategy
 from casino.strategies.sequence import SequenceStrategy
+from casino.strategies.split_pattern import SplitPatternStrategy
 from casino.strategies.thirds_coverage import ThirdsCoverageStrategy
+from casino.strategies.wheel_sections import WheelSectionsStrategy
 
 from casino.strategies.zero_always import ZeroAlwaysStrategy
 from casino.strategies.zero_simple import ZeroSimpleStrategy
@@ -103,7 +115,7 @@ def print_round_results(round_number: int, results: Dict[str, any]):
 
                         winnings = bet.amount * (payout_multiplier + 1)
                         winning_entries.append(
-                            f"{bet.bet_type}[€{bet.amount/100:.2f}→€{winnings/100:.2f}×{payout_multiplier}]"
+                            f"{bet.bet_type} <€{bet.amount/100:.2f}→€{winnings/100:.2f}×{payout_multiplier}>"
                         )
                     winning_str = ", ".join(winning_entries)
 
@@ -112,9 +124,7 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                 if losing_bets:
                     losing_entries = []
                     for bet in losing_bets:
-                        losing_entries.append(
-                            f"{bet.bet_type}<€{bet.amount/100:.2f}>"
-                        )
+                        losing_entries.append(f"{bet.bet_type} <€{bet.amount/100:.2f}>")
                     losing_str = ", ".join(losing_entries)
 
                 # Get initial bankroll from stats
@@ -161,8 +171,8 @@ def print_round_results(round_number: int, results: Dict[str, any]):
 
 
 def run_strategy_comparison(*, num_rounds: int):
-    initial_bankroll: int = 37 * 5_00
-    base_bet: int = 4_00
+    initial_bankroll: int = 100_00
+    base_bet: int = 2_00
     """Run simulation with different strategies"""
     casino = Casino()
 
@@ -222,14 +232,14 @@ def run_strategy_comparison(*, num_rounds: int):
             strategy=ThirdsCoverageStrategy(base_bet=base_bet, max_progression=4),
         ),
         Player(
-            player_id="enhanced_zero",
+            player_id="enhanced zero",
             initial_bankroll=initial_bankroll,
             strategy=EnhancedZeroTrendStrategy(
                 base_bet=base_bet, zero_threshold=5, history_size=100
             ),
         ),
         Player(
-            player_id="zero_simple",
+            player_id="zero simple",
             initial_bankroll=initial_bankroll,
             strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=10),
         ),
@@ -241,7 +251,67 @@ def run_strategy_comparison(*, num_rounds: int):
         Player(
             player_id="olivier : zero_always",
             initial_bankroll=initial_bankroll,
-            strategy=ZeroAlwaysStrategy(base_bet=2_00),
+            strategy=ZeroAlwaysStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="wheel sections",
+            initial_bankroll=initial_bankroll,
+            strategy=WheelSectionsStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="hot cold",
+            initial_bankroll=initial_bankroll,
+            strategy=HotColdSectorsStrategy(base_bet=base_bet, sector_size=5),
+        ),
+        Player(
+            player_id="opposite sectors",
+            initial_bankroll=initial_bankroll,
+            strategy=OppositeSectorsStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="column_pattern",
+            initial_bankroll=initial_bankroll,
+            strategy=ColumnPatternStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="dynamic_sectors",
+            initial_bankroll=initial_bankroll,
+            strategy=DynamicSectorsStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="progressive_coverage",
+            initial_bankroll=initial_bankroll,
+            strategy=ProgressiveCoverageStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="split pattern",
+            initial_bankroll=initial_bankroll,
+            strategy=SplitPatternStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="corner momentum",
+            initial_bankroll=initial_bankroll,
+            strategy=CornerMomentumStrategy(base_bet=base_bet, momentum_threshold=3),
+        ),
+        Player(
+            player_id="multi pattern",
+            initial_bankroll=initial_bankroll,
+            strategy=MultiPatternStrategy(base_bet=base_bet, pattern_memory=30),
+        ),
+        Player(
+            player_id="sector chain",
+            initial_bankroll=initial_bankroll,
+            strategy=SectorChainStrategy(base_bet=base_bet, chain_size=8),
+        ),
+        Player(
+            player_id="hybrid_martingale",
+            initial_bankroll=initial_bankroll,
+            strategy=HybridMartingaleStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="adaptive distribution",
+            initial_bankroll=initial_bankroll,
+            strategy=AdaptiveDistributionStrategy(base_bet=base_bet),
         ),
     ]
 
@@ -274,4 +344,4 @@ def run_strategy_comparison(*, num_rounds: int):
 
 
 if __name__ == "__main__":
-    run_strategy_comparison(num_rounds=300)
+    run_strategy_comparison(num_rounds=72)
