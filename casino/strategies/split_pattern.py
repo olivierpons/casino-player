@@ -1,5 +1,6 @@
-from typing import List, Dict, Set
 from collections import deque
+from typing import List, Set
+
 from .base import Strategy, PlacedBet
 
 
@@ -20,7 +21,8 @@ class SplitPatternStrategy(Strategy):
         self.horizontal_splits = self._init_horizontal_splits()
         self.vertical_splits = self._init_vertical_splits()
 
-    def _init_horizontal_splits(self) -> List[Set[int]]:
+    @staticmethod
+    def _init_horizontal_splits() -> List[Set[int]]:
         """Initialize horizontal split groups"""
         splits = []
         for row in range(12):
@@ -29,7 +31,8 @@ class SplitPatternStrategy(Strategy):
                 splits.append({num, num + 1})
         return splits
 
-    def _init_vertical_splits(self) -> List[Set[int]]:
+    @staticmethod
+    def _init_vertical_splits() -> List[Set[int]]:
         """Initialize vertical split groups"""
         splits = []
         for num in range(1, 34):

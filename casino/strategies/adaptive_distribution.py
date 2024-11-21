@@ -1,6 +1,6 @@
-from typing import List, Dict, Set
 from collections import deque
-import math
+from typing import List, Dict, Set
+
 from .base import Strategy, PlacedBet
 
 
@@ -64,7 +64,8 @@ class AdaptiveDistributionStrategy(Strategy):
             and num > 0
         }
 
-    def _get_valid_corner_bets(self, numbers: Set[int]) -> List[str]:
+    @staticmethod
+    def _get_valid_corner_bets(numbers: Set[int]) -> List[str]:
         """Get list of valid corner bets covering target numbers"""
         corner_bets = set()
 

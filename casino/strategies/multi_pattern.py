@@ -1,5 +1,6 @@
-from typing import List, Set, Dict
 from collections import deque
+from typing import List
+
 from .base import Strategy, PlacedBet
 
 
@@ -26,26 +27,11 @@ class MultiPatternStrategy(Strategy):
 
     def _analyze_color_pattern(self) -> str:
         """Analyze color pattern"""
+        # fmt: off
         red_numbers = {
-            1,
-            3,
-            5,
-            7,
-            9,
-            12,
-            14,
-            16,
-            18,
-            19,
-            21,
-            23,
-            25,
-            27,
-            30,
-            32,
-            34,
-            36,
+            1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36
         }
+        # fmt: on
         red_count = sum(1 for num in self.history if num in red_numbers)
         black_count = sum(
             1 for num in self.history if num > 0 and num not in red_numbers

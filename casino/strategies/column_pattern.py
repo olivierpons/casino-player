@@ -23,14 +23,15 @@ class ColumnPatternStrategy(Strategy):
         self.current_columns: Set[int] = {1, 2}  # Start with columns 1 and 2
         self.column_streaks = {1: 0, 2: 0, 3: 0}
 
-    def _get_column(self, number: int) -> int:
+    @staticmethod
+    def _get_column(number: int) -> int:
         """Get the column number (1-3) for a given number"""
         if number == 0:
             return 0
         return (number - 1) % 3 + 1
 
     def _analyze_patterns(self) -> Set[int]:
-        """Analyze column patterns to determine best columns to bet on"""
+        """Analyze column patterns to determine the best columns to bet on"""
         if not self.history:
             return {1, 2}
 
@@ -41,7 +42,7 @@ class ColumnPatternStrategy(Strategy):
             if col > 0:  # Ignore zero
                 column_hits[col] += 1
 
-        # Find the two columns with least hits (cold columns)
+        # Find the two columns with the least hits (cold columns)
         sorted_columns = sorted(column_hits.items(), key=lambda x: x[1])
         return {sorted_columns[0][0], sorted_columns[1][0]}
 

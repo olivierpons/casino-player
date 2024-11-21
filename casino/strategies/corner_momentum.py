@@ -24,7 +24,8 @@ class CornerMomentumStrategy(Strategy):
         self.quadrants = self._initialize_quadrants()
         self.active_corners: Set[str] = set()
 
-    def _initialize_corners(self) -> Dict[str, Set[int]]:
+    @staticmethod
+    def _initialize_corners() -> Dict[str, Set[int]]:
         """Initialize all possible corner bets"""
         corners = {}
         for row in range(11):
@@ -34,7 +35,8 @@ class CornerMomentumStrategy(Strategy):
                 corners[corner_key] = {num, num + 1, num + 3, num + 4}
         return corners
 
-    def _initialize_quadrants(self) -> Dict[str, Set[int]]:
+    @staticmethod
+    def _initialize_quadrants() -> Dict[str, Set[int]]:
         """Initialize table quadrants for momentum tracking"""
         return {
             "top_left": set(range(1, 10)),
@@ -43,7 +45,8 @@ class CornerMomentumStrategy(Strategy):
             "bottom_right": set(range(28, 37)),
         }
 
-    def _get_corner_key(self, number: int) -> str:
+    @staticmethod
+    def _get_corner_key(number: int) -> str:
         """Get the corner key for a given number"""
         if number < 1 or number > 36:
             return ""

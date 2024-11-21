@@ -87,7 +87,7 @@ class HotColdSectorsStrategy(Strategy):
         return sectors
 
     def _analyze_cold_sectors(self) -> int:
-        """Find the coldest sector (least frequent numbers)"""
+        """Find the coldest sector (the least frequent numbers)"""
         if not self.history:
             return 0
 
@@ -97,7 +97,7 @@ class HotColdSectorsStrategy(Strategy):
                 if num in sector_nums:
                     sector_hits[sector_center] += 1
 
-        # Return center of sector with least hits
+        # Return center of sector with the least hits
         return min(sector_hits.items(), key=lambda x: x[1])[0]
 
     def calculate_bets(self) -> List[PlacedBet]:

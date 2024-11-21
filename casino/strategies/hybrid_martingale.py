@@ -1,5 +1,6 @@
-from typing import List, Dict
 from collections import deque
+from typing import List
+
 from .base import Strategy, PlacedBet
 
 
@@ -66,32 +67,14 @@ class HybridMartingaleStrategy(Strategy):
 
         return bets
 
-    def _check_win(self, bet_type: str, number: int) -> bool:
+    @staticmethod
+    def _check_win(bet_type: str, number: int) -> bool:
         """Check if a specific bet type won"""
         if number == 0:
             return False
-
-        red_numbers = {
-            1,
-            3,
-            5,
-            7,
-            9,
-            12,
-            14,
-            16,
-            18,
-            19,
-            21,
-            23,
-            25,
-            27,
-            30,
-            32,
-            34,
-            36,
-        }
-
+        # fmt: off
+        red_numbers = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}
+        # fmt: on
         if bet_type == "red":
             return number in red_numbers
         elif bet_type == "first_dozen":

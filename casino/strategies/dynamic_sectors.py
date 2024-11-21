@@ -1,5 +1,6 @@
-from typing import List, Set, Dict
 from collections import deque
+from typing import List, Set
+
 from .base import Strategy, PlacedBet
 
 
@@ -16,45 +17,12 @@ class DynamicSectorsStrategy(Strategy):
         super().__init__(base_bet, max_progression)
         self.momentum_size = momentum_size
         self.history = deque(maxlen=20)
+        # fmt: off
         self.wheel_sequence = [
-            0,
-            32,
-            15,
-            19,
-            4,
-            21,
-            2,
-            25,
-            17,
-            34,
-            6,
-            27,
-            13,
-            36,
-            11,
-            30,
-            8,
-            23,
-            10,
-            5,
-            24,
-            16,
-            33,
-            1,
-            20,
-            14,
-            31,
-            9,
-            22,
-            18,
-            29,
-            7,
-            28,
-            12,
-            35,
-            3,
-            26,
+            0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5,
+            24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
         ]
+        # fmt: on
         self.current_focus = set()  # Current betting sector
 
     def _get_neighbors(self, number: int, radius: int = 2) -> Set[int]:
@@ -85,7 +53,7 @@ class DynamicSectorsStrategy(Strategy):
         for num in all_neighbors:
             number_frequency[num] += 1
 
-        # Select numbers with highest frequency
+        # Select numbers with the highest frequency
         sorted_numbers = sorted(
             number_frequency.items(), key=lambda x: x[1], reverse=True
         )

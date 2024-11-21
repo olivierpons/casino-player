@@ -1,4 +1,5 @@
-from typing import List, Dict, Set
+from typing import List, Dict
+
 from .base import Strategy, PlacedBet
 
 
@@ -16,7 +17,8 @@ class ProgressiveCoverageStrategy(Strategy):
         self.consecutive_stage_losses = 0
         self.bet_patterns = self._initialize_bet_patterns()
 
-    def _initialize_bet_patterns(self) -> Dict[int, List[tuple[str, float]]]:
+    @staticmethod
+    def _initialize_bet_patterns() -> Dict[int, List[tuple[str, float]]]:
         """Initialize betting patterns for each coverage level"""
         return {
             0: [  # Basic coverage (~48.6% coverage)

@@ -1,5 +1,6 @@
-from typing import List, Dict, Set
 from collections import deque
+from typing import List, Set
+
 from .base import Strategy, PlacedBet
 
 
@@ -21,45 +22,12 @@ class SectorChainStrategy(Strategy):
         super().__init__(base_bet, max_progression)
         self.chain_size = chain_size
         self.history = deque(maxlen=history_size)
+        # fmt: off
         self.wheel_sequence = [
-            0,
-            32,
-            15,
-            19,
-            4,
-            21,
-            2,
-            25,
-            17,
-            34,
-            6,
-            27,
-            13,
-            36,
-            11,
-            30,
-            8,
-            23,
-            10,
-            5,
-            24,
-            16,
-            33,
-            1,
-            20,
-            14,
-            31,
-            9,
-            22,
-            18,
-            29,
-            7,
-            28,
-            12,
-            35,
-            3,
-            26,
+            0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23,
+            10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
         ]
+        # fmt: on
         self.chains = self._initialize_chains()
         self.current_chain_index = 0
         self.chain_performance = {}
