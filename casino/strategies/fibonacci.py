@@ -27,11 +27,14 @@ class FibonacciStrategy(Strategy):
             self.sequence.append(next_num)
 
     def calculate_bets(self) -> List[PlacedBet]:
-        """Calculate next bet using Fibonacci sequence"""
         multiplier = self.sequence[self.current_position]
-        current_bet = int(self.base_bet * multiplier)
+        current_bet = self.validate_bet_amount(int(self.base_bet * multiplier))
 
-        return [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
+        return (
+            [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
+            if current_bet >= 50
+            else []
+        )
 
     def update_after_spin(self, *, won: bool, number: int):
         """Update position in Fibonacci sequence based on result"""

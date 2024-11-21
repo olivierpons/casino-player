@@ -53,9 +53,11 @@ class ZeroTrendStrategy(Strategy):
             return []
 
         # If betting, use progressive sizing based on consecutive losses
-        current_bet = self.base_bet * (
-            2 ** min(self.consecutive_losses, self.max_progression)
+        current_bet = self.validate_bet_amount(
+            self.base_bet * (2 ** min(self.consecutive_losses, self.max_progression))
         )
+        if current_bet == 0:
+            return []
 
         bets = [
             # Main bet on zero

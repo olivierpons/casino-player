@@ -26,29 +26,28 @@ class EnhancedZeroTrendStrategy(ZeroTrendStrategy):
         return number in self.near_zero_numbers
 
     def calculate_bets(self) -> List[PlacedBet]:
-        """Enhanced betting calculation with pattern recognition"""
         if not self.is_betting:
             return []
 
         bets = []
-        current_bet = self.base_bet * (
-            2 ** min(self.consecutive_losses, self.max_progression)
+        current_bet = self.validate_bet_amount(
+            self.base_bet * (2 ** min(self.consecutive_losses, self.max_progression))
         )
 
-        # Always bet on straight zero when active
         bets.append(PlacedBet(bet_type="straight_0", amount=current_bet))
 
-        # Analyze recent near misses
         recent_spins = list(self.spins_history)[-5:]
         near_misses = sum(1 for num in recent_spins if self.is_near_miss(num))
 
-        # If we're seeing many near misses, add coverage bets
         if near_misses >= 2:
-            bets.append(PlacedBet(bet_type="neighbours_0", amount=current_bet // 2))
+            neighbours_bet = self.validate_bet_amount(current_bet // 2)
+            if neighbours_bet >= 50:
+                bets.append(PlacedBet(bet_type="neighbours_0", amount=neighbours_bet))
 
-        # If we're far above threshold, add first dozen coverage
         if self.non_zero_count >= self.zero_threshold * 2:
-            bets.append(PlacedBet(bet_type="first_dozen", amount=current_bet // 3))
+            dozen_bet = self.validate_bet_amount(current_bet // 3)
+            if dozen_bet >= 50:
+                bets.append(PlacedBet(bet_type="first_dozen", amount=dozen_bet))
 
         return bets
 

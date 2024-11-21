@@ -59,7 +59,7 @@ class ProgressiveCoverageStrategy(Strategy):
         # Create bets according to pattern
         bets = []
         for bet_type, proportion in pattern:
-            bet_amount = int(current_base * proportion)
+            bet_amount = self.validate_bet_amount(int(current_base * proportion))
             if bet_amount > 0:
                 bets.append(PlacedBet(bet_type=bet_type, amount=bet_amount))
 

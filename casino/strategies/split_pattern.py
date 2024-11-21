@@ -71,19 +71,20 @@ class SplitPatternStrategy(Strategy):
         current_bet = int(self.base_bet * multiplier)
 
         # Distribute bets across active splits
-        bet_per_split = current_bet // len(active_splits)
+        bet_per_split = self.validate_bet_amount(current_bet // len(active_splits))
 
         bets = []
-        for split in active_splits:
-            split_list = sorted(split)
-            if len(split_list) == 2:  # Valid split
-                # Determine if horizontal or vertical split
-                if split_list[1] - split_list[0] == 1:  # Horizontal
-                    bet_type = f"split_h_{split_list[0]}_{split_list[1]}"
-                else:  # Vertical
-                    bet_type = f"split_v_{split_list[0]}_{split_list[1]}"
+        if bet_per_split > 0:
+            for split in active_splits:
+                split_list = sorted(split)
+                if len(split_list) == 2:  # Valid split
+                    # Determine if horizontal or vertical split
+                    if split_list[1] - split_list[0] == 1:  # Horizontal
+                        bet_type = f"split_h_{split_list[0]}_{split_list[1]}"
+                    else:  # Vertical
+                        bet_type = f"split_v_{split_list[0]}_{split_list[1]}"
 
-                bets.append(PlacedBet(bet_type=bet_type, amount=bet_per_split))
+                    bets.append(PlacedBet(bet_type=bet_type, amount=bet_per_split))
 
         return [bet for bet in bets if bet.amount > 0]
 

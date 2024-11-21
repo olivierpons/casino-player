@@ -15,7 +15,7 @@ class ZeroNeighboursStrategy(Strategy):
     def _calculate_progression_bet(self) -> int:
         """Calculate bet amount based on loss progression"""
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
-        return int(self.base_bet * multiplier)
+        return self.validate_bet_amount(int(self.base_bet * multiplier))
 
     def calculate_bets(self) -> List[PlacedBet]:
         """
@@ -23,6 +23,9 @@ class ZeroNeighboursStrategy(Strategy):
         Returns a list of all bets to place
         """
         current_bet = self._calculate_progression_bet()
+        if current_bet == 0:
+            return []
+
         bets = [PlacedBet(bet_type="straight_0", amount=current_bet)]
 
         # Base bet on zero

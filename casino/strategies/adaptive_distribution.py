@@ -79,39 +79,35 @@ class AdaptiveDistributionStrategy(Strategy):
         return list(corner_bets)
 
     def calculate_bets(self) -> List[PlacedBet]:
-        """Calculate bets based on distribution analysis"""
         target_numbers = self._identify_underrepresented_numbers()
-
-        # Progressive betting
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
-        total_bet = int(self.base_bet * multiplier)
+        total_bet = self.validate_bet_amount(int(self.base_bet * multiplier))
 
         bets = []
 
-        # Handle straight bets for zero
         if 0 in target_numbers:
-            zero_bet = int(total_bet * 0.1)  # 10% on zero
+            zero_bet = self.validate_bet_amount(int(total_bet * 0.1))
             if zero_bet > 0:
                 bets.append(PlacedBet(bet_type="straight_0", amount=zero_bet))
             total_bet -= zero_bet
             target_numbers.remove(0)
 
-        # Get valid corner bets
         corner_bets = self._get_valid_corner_bets(target_numbers)
-
-        # If we have valid corner bets
         if corner_bets:
-            corner_amount = int(total_bet * self.bet_distribution["corner"])
-            bet_per_corner = corner_amount // len(corner_bets)
+            corner_amount = self.validate_bet_amount(
+                int(total_bet * self.bet_distribution["corner"])
+            )
+            bet_per_corner = self.validate_bet_amount(corner_amount // len(corner_bets))
 
             if bet_per_corner > 0:
                 for corner in corner_bets:
                     bets.append(PlacedBet(bet_type=corner, amount=bet_per_corner))
 
-        # Use remaining amount for straight bets
         remaining_bet = total_bet - sum(bet.amount for bet in bets)
         if remaining_bet > 0 and target_numbers:
-            bet_per_number = remaining_bet // len(target_numbers)
+            bet_per_number = self.validate_bet_amount(
+                remaining_bet // len(target_numbers)
+            )
             if bet_per_number > 0:
                 for num in target_numbers:
                     bets.append(

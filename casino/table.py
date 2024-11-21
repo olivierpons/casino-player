@@ -74,12 +74,11 @@ class CasinoTable:
                     losing_bets.append(bet)
 
             player.update_after_round(total_profit, total_bet, winning_number)
-
             round_stats["players_results"][player_id] = {
                 "profit": total_profit,
                 "total_bet": total_bet,
                 "bankroll": player.get_current_bankroll(),
-                "initial_bankroll": player.get_initial_bankroll(),  # Utilisation de la nouvelle méthode
+                "initial_bankroll": player.get_initial_bankroll(),
                 "winning_bets": winning_bets,
                 "losing_bets": losing_bets,
             }

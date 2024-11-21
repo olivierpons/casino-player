@@ -30,7 +30,9 @@ class OppositeSectorsStrategy(Strategy):
 
         # Progressive betting based on consecutive losses
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
-        current_base = int(self.base_bet * multiplier)
+        current_base = self.validate_bet_amount(int(self.base_bet * multiplier))
+        if current_base == 0:
+            return []
 
         # Split bet between sectors
         bets = [

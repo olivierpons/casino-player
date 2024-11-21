@@ -1,4 +1,5 @@
 from typing import List
+
 from .base import Strategy, PlacedBet
 
 
@@ -15,7 +16,7 @@ class LabouchereStrategy(Strategy):
         super().__init__(base_bet)
         self.bet_type = bet_type
         self.sequence_length = sequence_length
-        self.sequence = [1] * sequence_length  # Start with unit sequence
+        self.sequence = [1] * sequence_length
         self.original_sequence = self.sequence.copy()
 
     def calculate_bets(self) -> List[PlacedBet]:
@@ -27,6 +28,10 @@ class LabouchereStrategy(Strategy):
             current_bet = int(self.base_bet * self.sequence[0])
         else:
             current_bet = int(self.base_bet * (self.sequence[0] + self.sequence[-1]))
+
+        current_bet = self.validate_bet_amount(current_bet)
+        if current_bet <= 0:
+            return []
 
         return [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
 

@@ -22,11 +22,10 @@ class ZeroSimpleStrategy(Strategy):
 
     def update_after_spin(self, *, won: bool, number: int):
         super().update_after_spin(won=won, number=number)
-        if number is not None:
-            if number:
-                self.non_zero_count += 1
-                if self.non_zero_count >= self.zero_threshold:
-                    self.is_betting = True
-            else:
-                self.non_zero_count = 0
-                self.is_betting = False
+        if number:
+            self.non_zero_count += 1
+            if self.non_zero_count >= self.zero_threshold:
+                self.is_betting = True
+        else:
+            self.non_zero_count = 0
+            self.is_betting = False

@@ -19,23 +19,25 @@ class WheelSectionsStrategy(Strategy):
         """Calculate bets focusing alternately on Tier and Orphans"""
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
         current_bet = int(self.base_bet * multiplier)
+        current_bet_div_12 = self.validate_bet_amount(current_bet // 12)
+        current_bet_div_8 = self.validate_bet_amount(current_bet // 8)
 
         bets = []
         # Main bet
-        if self.current_focus == "tier":
+        if current_bet_div_12 and self.current_focus == "tier":
             for num in self.tier_numbers:
                 bets.append(
                     PlacedBet(
                         bet_type=f"straight_{num}",
-                        amount=current_bet // 12,  # Split bet among tier numbers
+                        amount=current_bet_div_12,  # Split bet among tier numbers
                     )
                 )
-        else:  # orphans
+        elif current_bet_div_8:  # orphans
             for num in self.orphans_numbers:
                 bets.append(
                     PlacedBet(
                         bet_type=f"straight_{num}",
-                        amount=current_bet // 8,  # Split bet among orphans numbers
+                        amount=current_bet_div_8,  # Split bet among orphans numbers
                     )
                 )
 

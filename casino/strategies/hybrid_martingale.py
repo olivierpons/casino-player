@@ -45,24 +45,20 @@ class HybridMartingaleStrategy(Strategy):
                 ] ** 2 / sum(rate**2 for rate in self.success_rates.values())
 
     def calculate_bets(self) -> List[PlacedBet]:
-        """Calculate bets using multiple martingale progressions"""
         bets = []
 
-        # Update weights if we have enough history
         if any(self.bet_results.values()):
             self._update_success_rates()
             self._update_allocation_weights()
 
-        # Calculate bet for each type
         for bet_type, progression in self.progressions.items():
-            # Calculate martingale multiplier for this bet type
             multiplier = min(2**progression, 2**self.max_progression)
+            weighted_base = self.validate_bet_amount(
+                int(self.base_bet * self.allocation_weights[bet_type])
+            )
+            current_bet = self.validate_bet_amount(weighted_base * multiplier)
 
-            # Calculate bet amount using weight
-            weighted_base = int(self.base_bet * self.allocation_weights[bet_type])
-            current_bet = weighted_base * multiplier
-
-            if current_bet > 0:
+            if current_bet >= 50:
                 bets.append(PlacedBet(bet_type=bet_type, amount=current_bet))
 
         return bets

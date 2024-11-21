@@ -31,6 +31,13 @@ from casino.strategies.zero_trend import ZeroTrendStrategy
 from casino.table import Casino
 
 
+def seconds_to_hms(seconds: int) -> str:
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    secs = seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
 def print_round_results(round_number: int, results: Dict[str, any]):
     """Print results of a casino round in a formatted table with compact bet details using UTF-8 symbols"""
 
@@ -45,12 +52,12 @@ def print_round_results(round_number: int, results: Dict[str, any]):
     black_numbers = {2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35}
 
     # Create number display with appropriate color and symbols
-    if winning_number == 0:
-        number_display = f"Zero {winning_number} 🎯"
-    elif winning_number in red_numbers:
+    if winning_number in red_numbers:
         number_display = f"Red {winning_number} 🔴"
-    else:  # black numbers
+    elif winning_number in black_numbers:  # black numbers
         number_display = f"Black {winning_number} ⚪"
+    else:
+        number_display = f"Zero {winning_number} 🎯"
 
     # Additional properties
     properties = []
@@ -68,7 +75,11 @@ def print_round_results(round_number: int, results: Dict[str, any]):
             properties.append("3rd dozen 3️⃣")
 
     # Print round header with winning number and properties
-    print(f"=== Round {round_number:3d} : {number_display} {' '.join(properties)} ")
+    print(
+        f"=== Round {round_number:3d} "
+        f"({seconds_to_hms(round_number * 40)}) : "
+        f"{number_display} {' '.join(properties)} "
+    )
 
     # Collect all data for tables with active players
     active_tables = []
@@ -78,7 +89,7 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                 [
                     "Player",
                     "Initial",
-                    "P&L",
+                    "Total P&L",
                     "Current",
                     "Total Bet",
                     "Profit",
@@ -125,7 +136,7 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                     losing_entries = []
                     for bet in losing_bets:
                         losing_entries.append(f"{bet.bet_type} <€{bet.amount/100:.2f}>")
-                    losing_str = ", ".join(losing_entries)
+                    losing_str = "\n".join(losing_entries)
 
                 # Get initial bankroll from stats
                 initial_bankroll = stats["initial_bankroll"]
@@ -138,9 +149,9 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                     [
                         player_id,
                         f"€{initial_bankroll/100:>10.2f}",
-                        f"€{pnl/100:>+10.2f}",
+                        f"€{pnl/100:>+10.2f}" if pnl/100 else "-",
                         f"€{current_bankroll/100:>10.2f}",
-                        f"€{stats['total_bet']/100:>8.2f}",
+                        f"€{stats['total_bet']/100:>8.2f}" if stats['total_bet']/100 else "-",
                         f"€{stats['profit']/100:>+8.2f}",
                         winning_str,
                         losing_str,
@@ -171,7 +182,7 @@ def print_round_results(round_number: int, results: Dict[str, any]):
 
 
 def run_strategy_comparison(*, num_rounds: int):
-    initial_bankroll: int = 100_00
+    initial_bankroll: int = 74 * 100
     base_bet: int = 2_00
     """Run simulation with different strategies"""
     casino = Casino()
@@ -205,7 +216,7 @@ def run_strategy_comparison(*, num_rounds: int):
         Player(
             player_id="sequence",
             initial_bankroll=initial_bankroll,
-            strategy=SequenceStrategy("custom_sequence.json", base_bet=1_00),
+            strategy=SequenceStrategy("custom_sequence.json", base_bet=base_bet),
         ),
         Player(
             player_id="zero",
@@ -239,9 +250,24 @@ def run_strategy_comparison(*, num_rounds: int):
             ),
         ),
         Player(
-            player_id="zero simple",
+            player_id="zero wait 10",
             initial_bankroll=initial_bankroll,
             strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=10),
+        ),
+        Player(
+            player_id="zero wait 30",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=30),
+        ),
+        Player(
+            player_id="zero wait 50",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
+        ),
+        Player(
+            player_id="zero wait 80",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
         ),
         Player(
             player_id="james bond",
@@ -249,7 +275,7 @@ def run_strategy_comparison(*, num_rounds: int):
             strategy=JamesBondStrategy(base_bet=base_bet),
         ),
         Player(
-            player_id="olivier : zero_always",
+            player_id="zero all time",
             initial_bankroll=initial_bankroll,
             strategy=ZeroAlwaysStrategy(base_bet=base_bet),
         ),
@@ -344,4 +370,4 @@ def run_strategy_comparison(*, num_rounds: int):
 
 
 if __name__ == "__main__":
-    run_strategy_comparison(num_rounds=72)
+    run_strategy_comparison(num_rounds=10000)

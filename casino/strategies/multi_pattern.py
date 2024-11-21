@@ -116,6 +116,7 @@ class MultiPatternStrategy(Strategy):
 
         for pattern_type, bet_type in patterns.items():
             bet_amount = int(current_bet * self.bet_weights[pattern_type])
+            bet_amount = self.validate_bet_amount(bet_amount)
             if bet_amount > 0:
                 bets.append(PlacedBet(bet_type=bet_type, amount=bet_amount))
 

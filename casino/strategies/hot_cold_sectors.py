@@ -101,24 +101,22 @@ class HotColdSectorsStrategy(Strategy):
         return min(sector_hits.items(), key=lambda x: x[1])[0]
 
     def calculate_bets(self) -> List[PlacedBet]:
-        """Calculate bets based on cold sector analysis"""
         if not self.current_sector:
             self.current_sector = self._analyze_cold_sectors()
 
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
-        current_bet = int(self.base_bet * multiplier)
+        current_bet = self.validate_bet_amount(int(self.base_bet * multiplier))
 
-        # Bet on all numbers in the cold sector
         sector_numbers = self.sectors[self.current_sector]
-        if not sector_numbers:  # Safety check
+        if not sector_numbers:
             sector_numbers = {self.current_sector}
 
-        bet_per_number = current_bet // len(sector_numbers)
+        bet_per_number = self.validate_bet_amount(current_bet // len(sector_numbers))
 
         return [
             PlacedBet(bet_type=f"straight_{num}", amount=bet_per_number)
             for num in sector_numbers
-            if bet_per_number > 0
+            if bet_per_number >= 50
         ]
 
     def update_after_spin(self, *, won: bool, number: int):

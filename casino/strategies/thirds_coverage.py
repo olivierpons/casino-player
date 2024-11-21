@@ -42,7 +42,9 @@ class ThirdsCoverageStrategy(Strategy):
 
         # Base bet increases with consecutive losses but split between coverage areas
         multiplier = min(2 ** (self.consecutive_losses // 2), 2**self.max_progression)
-        bet_per_third = int(self.base_bet * multiplier)
+        bet_per_third = self.validate_bet_amount(int(self.base_bet * multiplier))
+        if bet_per_third == 0:
+            return []
 
         bets = []
         for third in self.current_coverage:

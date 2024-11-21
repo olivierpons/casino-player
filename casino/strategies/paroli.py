@@ -20,8 +20,9 @@ class ParoliStrategy(Strategy):
         """Calculate next bet using Paroli progression"""
         # Double bet after each win up to max_progression
         multiplier = min(2**self.consecutive_wins, 2**self.max_progression)
-        current_bet = int(self.base_bet * multiplier)
-
+        current_bet = self.validate_bet_amount(int(self.base_bet * multiplier))
+        if current_bet == 0:
+            return []
         return [PlacedBet(bet_type=self.bet_type, amount=current_bet)]
 
     def update_after_spin(self, *, won: bool, number: int):

@@ -103,15 +103,17 @@ class CornerMomentumStrategy(Strategy):
 
         # Calculate progressive bet size
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
-        current_bet = int(self.base_bet * multiplier)
+        current_bet = self.validate_bet_amount(int(self.base_bet * multiplier))
 
         # Distribute bets across active corners
-        bet_per_corner = current_bet // max(len(active_corners), 1)
+        bet_per_corner = self.validate_bet_amount(
+            current_bet // max(len(active_corners), 1)
+        )
 
         return [
             PlacedBet(bet_type=f"corner_{corner}", amount=bet_per_corner)
             for corner in active_corners
-            if bet_per_corner > 0
+            if bet_per_corner >= 50
         ]
 
     def update_after_spin(self, *, won: bool, number: int):

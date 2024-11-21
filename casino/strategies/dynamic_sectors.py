@@ -60,26 +60,22 @@ class DynamicSectorsStrategy(Strategy):
         return {num for num, freq in sorted_numbers[:6] if freq > 1}
 
     def calculate_bets(self) -> List[PlacedBet]:
-        """Calculate bets based on momentum analysis"""
-        # Update focus sector based on momentum
         momentum_sector = self._analyze_momentum()
         if momentum_sector:
             self.current_focus = momentum_sector
         elif not self.current_focus:
-            # Default to zero and its neighbors if no momentum detected
             self.current_focus = self._get_neighbors(0, radius=3)
 
-        # Calculate progressive bet size
         multiplier = min(2**self.consecutive_losses, 2**self.max_progression)
-        current_bet = int(self.base_bet * multiplier)
-
-        # Distribute bets across focus sector
-        bet_per_number = current_bet // max(len(self.current_focus), 1)
+        current_bet = self.validate_bet_amount(int(self.base_bet * multiplier))
+        bet_per_number = self.validate_bet_amount(
+            current_bet // max(len(self.current_focus), 1)
+        )
 
         return [
             PlacedBet(bet_type=f"straight_{num}", amount=bet_per_number)
             for num in self.current_focus
-            if bet_per_number > 0
+            if bet_per_number >= 50
         ]
 
     def update_after_spin(self, *, won: bool, number: int):

@@ -77,33 +77,36 @@ class SectorChainStrategy(Strategy):
         # Distribute bets using corners and dozens for better coverage
         bets = []
         covered_numbers = set()
-        bet_amount_corner = total_bet // 4
-        bet_amount_straight = total_bet // 8
+        bet_amount_corner = self.validate_bet_amount(total_bet // 4)
+        bet_amount_straight = self.validate_bet_amount(total_bet // 8)
 
         # Add corner bets where possible
-        for row in range(11):
-            for col in range(2):
-                corner_start = row * 3 + col + 1
-                corner_numbers = {
-                    corner_start,
-                    corner_start + 1,
-                    corner_start + 3,
-                    corner_start + 4,
-                }
-                if corner_numbers & active_numbers and corner_start <= 32:
-                    bets.append(
-                        PlacedBet(
-                            bet_type=f"corner_{corner_start}", amount=bet_amount_corner
+        if bet_amount_corner:
+            for row in range(11):
+                for col in range(2):
+                    corner_start = row * 3 + col + 1
+                    corner_numbers = {
+                        corner_start,
+                        corner_start + 1,
+                        corner_start + 3,
+                        corner_start + 4,
+                    }
+                    if corner_numbers & active_numbers and corner_start <= 32:
+                        bets.append(
+                            PlacedBet(
+                                bet_type=f"corner_{corner_start}",
+                                amount=bet_amount_corner,
+                            )
                         )
-                    )
-                    covered_numbers.update(corner_numbers)
+                        covered_numbers.update(corner_numbers)
 
         # Add straight bets for remaining numbers
         uncovered = active_numbers - covered_numbers
-        for num in uncovered:
-            bets.append(
-                PlacedBet(bet_type=f"straight_{num}", amount=bet_amount_straight)
-            )
+        if bet_amount_straight:
+            for num in uncovered:
+                bets.append(
+                    PlacedBet(bet_type=f"straight_{num}", amount=bet_amount_straight)
+                )
 
         return bets
 
