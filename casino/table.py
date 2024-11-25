@@ -66,7 +66,7 @@ class CasinoTable:
                 total_bet += bet.amount
                 if self.roulette.check_win(bet.bet_type, winning_number):
                     payout_multiplier = self.roulette.get_payout(bet.bet_type)
-                    profit = bet.amount + int(bet.amount * payout_multiplier)
+                    profit = int(bet.amount * payout_multiplier)
                     total_profit += profit
                     winning_bets.append(bet)
                 else:

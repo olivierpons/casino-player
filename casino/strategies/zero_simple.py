@@ -8,10 +8,10 @@ class ZeroSimpleStrategy(Strategy):
     """
 
     def __init__(
-        self, base_bet: int = 200, max_progression: int = 4, zero_threshold: int = 5
+        self, base_bet: int = 200, max_progression: int = 4, wait_before_bet: int = 5
     ):
         super().__init__(base_bet, max_progression)
-        self.zero_threshold = zero_threshold
+        self.wait_before_bet = wait_before_bet
         self.non_zero_count = 0
         self.is_betting = False
 
@@ -24,7 +24,7 @@ class ZeroSimpleStrategy(Strategy):
         super().update_after_spin(won=won, number=number)
         if number:
             self.non_zero_count += 1
-            if self.non_zero_count >= self.zero_threshold:
+            if self.non_zero_count >= self.wait_before_bet:
                 self.is_betting = True
         else:
             self.non_zero_count = 0

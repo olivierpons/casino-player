@@ -26,6 +26,7 @@ from casino.strategies.thirds_coverage import ThirdsCoverageStrategy
 from casino.strategies.wheel_sections import WheelSectionsStrategy
 
 from casino.strategies.zero_always import ZeroAlwaysStrategy
+from casino.strategies.zero_and_half import ZeroAndHalfStrategy
 from casino.strategies.zero_simple import ZeroSimpleStrategy
 from casino.strategies.zero_trend import ZeroTrendStrategy
 from casino.table import Casino
@@ -182,8 +183,8 @@ def print_round_results(round_number: int, results: Dict[str, any]):
 
 
 def run_strategy_comparison(*, num_rounds: int):
-    initial_bankroll: int = 74 * 100
-    base_bet: int = 2_00
+    initial_bankroll: int = 74 * 100 * 2
+    base_bet: int = 3_00
     """Run simulation with different strategies"""
     casino = Casino()
 
@@ -208,67 +209,67 @@ def run_strategy_comparison(*, num_rounds: int):
             initial_bankroll=initial_bankroll,
             strategy=DAlembertStrategy(base_bet=base_bet, max_progression=8),
         ),
-        Player(
-            player_id="paroli",
-            initial_bankroll=initial_bankroll,
-            strategy=ParoliStrategy(base_bet=base_bet, max_progression=3),
-        ),
-        Player(
-            player_id="sequence",
-            initial_bankroll=initial_bankroll,
-            strategy=SequenceStrategy("custom_sequence.json", base_bet=base_bet),
-        ),
-        Player(
-            player_id="zero",
-            initial_bankroll=initial_bankroll,
-            strategy=ZeroTrendStrategy(
-                base_bet=base_bet, zero_threshold=5, history_size=100
-            ),
-        ),
-        Player(
-            player_id="fibonacci",
-            initial_bankroll=initial_bankroll,
-            strategy=FibonacciStrategy(base_bet=base_bet, max_progression=4),
-        ),
-        Player(
-            player_id="labouchere",
-            initial_bankroll=initial_bankroll,
-            strategy=LabouchereStrategy(
-                base_bet=base_bet, sequence_length=6, bet_type="red"
-            ),
-        ),
-        Player(
-            player_id="thirds coverage",
-            initial_bankroll=initial_bankroll,
-            strategy=ThirdsCoverageStrategy(base_bet=base_bet, max_progression=4),
-        ),
-        Player(
-            player_id="enhanced zero",
-            initial_bankroll=initial_bankroll,
-            strategy=EnhancedZeroTrendStrategy(
-                base_bet=base_bet, zero_threshold=5, history_size=100
-            ),
-        ),
+        # Player(
+        #     player_id="paroli",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ParoliStrategy(base_bet=base_bet, max_progression=3),
+        # ),
+        # Player(
+        #     player_id="sequence",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=SequenceStrategy("custom_sequence.json", base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="zero",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ZeroTrendStrategy(
+        #         base_bet=base_bet, zero_threshold=5, history_size=100
+        #     ),
+        # ),
+        # Player(
+        #     player_id="fibonacci",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=FibonacciStrategy(base_bet=base_bet, max_progression=4),
+        # ),
+        # Player(
+        #     player_id="labouchere",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=LabouchereStrategy(
+        #         base_bet=base_bet, sequence_length=6, bet_type="red"
+        #     ),
+        # ),
+        # Player(
+        #     player_id="thirds coverage",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ThirdsCoverageStrategy(base_bet=base_bet, max_progression=4),
+        # ),
+        # Player(
+        #     player_id="enhanced zero",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=EnhancedZeroTrendStrategy(
+        #         base_bet=base_bet, zero_threshold=5, history_size=100
+        #     ),
+        # ),
         Player(
             player_id="zero wait 10",
             initial_bankroll=initial_bankroll,
-            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=10),
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=10),
         ),
         Player(
             player_id="zero wait 30",
             initial_bankroll=initial_bankroll,
-            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=30),
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=30),
         ),
-        Player(
-            player_id="zero wait 50",
-            initial_bankroll=initial_bankroll,
-            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
-        ),
-        Player(
-            player_id="zero wait 80",
-            initial_bankroll=initial_bankroll,
-            strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
-        ),
+        # Player(
+        #     player_id="zero wait 50",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
+        # ),
+        # Player(
+        #     player_id="zero wait 80",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
+        # ),
         Player(
             player_id="james bond",
             initial_bankroll=initial_bankroll,
@@ -280,65 +281,70 @@ def run_strategy_comparison(*, num_rounds: int):
             strategy=ZeroAlwaysStrategy(base_bet=base_bet),
         ),
         Player(
-            player_id="wheel sections",
+            player_id="zero and half",
             initial_bankroll=initial_bankroll,
-            strategy=WheelSectionsStrategy(base_bet=base_bet),
+            strategy=ZeroAndHalfStrategy(base_bet=base_bet, max_progression=4, other='black', wait_before_bet=5),
         ),
-        Player(
-            player_id="hot cold",
-            initial_bankroll=initial_bankroll,
-            strategy=HotColdSectorsStrategy(base_bet=base_bet, sector_size=5),
-        ),
-        Player(
-            player_id="opposite sectors",
-            initial_bankroll=initial_bankroll,
-            strategy=OppositeSectorsStrategy(base_bet=base_bet),
-        ),
-        Player(
-            player_id="column_pattern",
-            initial_bankroll=initial_bankroll,
-            strategy=ColumnPatternStrategy(base_bet=base_bet),
-        ),
-        Player(
-            player_id="dynamic_sectors",
-            initial_bankroll=initial_bankroll,
-            strategy=DynamicSectorsStrategy(base_bet=base_bet),
-        ),
-        Player(
-            player_id="progressive_coverage",
-            initial_bankroll=initial_bankroll,
-            strategy=ProgressiveCoverageStrategy(base_bet=base_bet),
-        ),
-        Player(
-            player_id="split pattern",
-            initial_bankroll=initial_bankroll,
-            strategy=SplitPatternStrategy(base_bet=base_bet),
-        ),
-        Player(
-            player_id="corner momentum",
-            initial_bankroll=initial_bankroll,
-            strategy=CornerMomentumStrategy(base_bet=base_bet, momentum_threshold=3),
-        ),
-        Player(
-            player_id="multi pattern",
-            initial_bankroll=initial_bankroll,
-            strategy=MultiPatternStrategy(base_bet=base_bet, pattern_memory=30),
-        ),
-        Player(
-            player_id="sector chain",
-            initial_bankroll=initial_bankroll,
-            strategy=SectorChainStrategy(base_bet=base_bet, chain_size=8),
-        ),
-        Player(
-            player_id="hybrid_martingale",
-            initial_bankroll=initial_bankroll,
-            strategy=HybridMartingaleStrategy(base_bet=base_bet),
-        ),
-        Player(
-            player_id="adaptive distribution",
-            initial_bankroll=initial_bankroll,
-            strategy=AdaptiveDistributionStrategy(base_bet=base_bet),
-        ),
+        # Player(
+        #     player_id="wheel sections",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=WheelSectionsStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="hot cold",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=HotColdSectorsStrategy(base_bet=base_bet, sector_size=5),
+        # ),
+        # Player(
+        #     player_id="opposite sectors",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=OppositeSectorsStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="column_pattern",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ColumnPatternStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="dynamic_sectors",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=DynamicSectorsStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="progressive_coverage",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=ProgressiveCoverageStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="split pattern",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=SplitPatternStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="corner momentum",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=CornerMomentumStrategy(base_bet=base_bet, momentum_threshold=3),
+        # ),
+        # Player(
+        #     player_id="multi pattern",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=MultiPatternStrategy(base_bet=base_bet, pattern_memory=30),
+        # ),
+        # Player(
+        #     player_id="sector chain",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=SectorChainStrategy(base_bet=base_bet, chain_size=8),
+        # ),
+        # Player(
+        #     player_id="hybrid_martingale",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=HybridMartingaleStrategy(base_bet=base_bet),
+        # ),
+        # Player(
+        #     player_id="adaptive distribution",
+        #     initial_bankroll=initial_bankroll,
+        #     strategy=AdaptiveDistributionStrategy(base_bet=base_bet),
+        # ),
     ]
 
     for player in players:
@@ -370,4 +376,4 @@ def run_strategy_comparison(*, num_rounds: int):
 
 
 if __name__ == "__main__":
-    run_strategy_comparison(num_rounds=10000)
+    run_strategy_comparison(num_rounds=200)

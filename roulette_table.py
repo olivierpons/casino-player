@@ -1,5 +1,5 @@
+import secrets
 from typing import Dict, List, Set
-import random
 
 
 class RouletteTable:
@@ -44,11 +44,11 @@ class RouletteTable:
             "street": 11,  # Transversale (3 numéros)
             "corner": 8,  # Carré (4 numéros)
             "sixline": 5,  # Sixain (6 numéros)
-            "column": 1,  # Colonne (12 numéros)
-            "dozen": 1,  # Douzaine (12 numéros)
-            "color": 0.5,  # Rouge/Noir (18 numéros)
-            "even_odd": 0.5,  # Pair/Impair (18 numéros)
-            "half": 0.5,  # 1-18/19-36 (18 numéros)
+            "column": 2,  # Colonne (12 numéros)
+            "dozen": 2,  # Douzaine (12 numéros)
+            "color": 1,  # Rouge/Noir (18 numéros)
+            "even_odd": 1,  # Pair/Impair (18 numéros)
+            "half": 1,  # 1-18/19-36 (18 numéros)
             "neighbours": 6,  # Voisins
         }
 
@@ -154,7 +154,7 @@ class RouletteTable:
             self._add_bet(f"neighbours_{_number}", set(neighbours))
 
     def spin(self) -> int:
-        self.current_number = random.choice(self.NUMBERS_SEQUENCE)
+        self.current_number = secrets.choice(self.NUMBERS_SEQUENCE)
         return self.current_number
 
     def get_payout(self, bet_type: str) -> int:
