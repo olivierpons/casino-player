@@ -28,8 +28,10 @@ from casino.strategies.wheel_sections import WheelSectionsStrategy
 from casino.strategies.zero_always import ZeroAlwaysStrategy
 from casino.strategies.zero_and_half import ZeroAndHalfStrategy
 from casino.strategies.zero_simple import ZeroSimpleStrategy
+from casino.strategies.zero_timeout import ZeroTimeoutStrategy
 from casino.strategies.zero_trend import ZeroTrendStrategy
 from casino.table import Casino
+from roulette_table import RouletteTable
 
 
 def seconds_to_hms(seconds: int) -> str:
@@ -40,6 +42,19 @@ def seconds_to_hms(seconds: int) -> str:
 
 
 def print_round_results(round_number: int, results: Dict[str, any]):
+
+    def get_payout_type(bet_type: str) -> str:
+        category = bet_type.split("_")[0]
+        if category in ["black", "red"]:
+            return "color"
+        if category in ["even", "odd"]:
+            return "even_odd"
+        if category in ["low", "high"]:
+            return "half"
+        if category in ["first", "second", "third"]:
+            return "dozen"
+        return category
+
     """Print results of a casino round in a formatted table with compact bet details using UTF-8 symbols"""
 
     # Get winning number from first table (they all have the same winning number)
@@ -109,27 +124,15 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                 if winning_bets:
                     winning_entries = []
                     for bet in winning_bets:
-                        payout_multiplier = {
-                            "straight_0": 35,
-                            "split": 17,
-                            "street": 11,
-                            "corner": 8,
-                            "first_dozen": 2,
-                            "second_dozen": 2,
-                            "third_dozen": 2,
-                            "odd": 1,
-                            "even": 1,
-                            "red": 1,
-                            "black": 1,
-                            "first_half": 1,
-                            "second_half": 1,
-                        }.get(bet.bet_type, 1)
+                        payout_multiplier = RouletteTable.PAYOUTS[
+                            get_payout_type(bet.bet_type.split("_")[0])
+                        ]
 
                         winnings = bet.amount * (payout_multiplier + 1)
                         winning_entries.append(
                             f"{bet.bet_type} <€{bet.amount/100:.2f}→€{winnings/100:.2f}×{payout_multiplier}>"
                         )
-                    winning_str = ", ".join(winning_entries)
+                    winning_str = "\n".join(winning_entries)
 
                 # Format losing bets string with Unicode symbols
                 losing_str = ""
@@ -150,9 +153,13 @@ def print_round_results(round_number: int, results: Dict[str, any]):
                     [
                         player_id,
                         f"€{initial_bankroll/100:>10.2f}",
-                        f"€{pnl/100:>+10.2f}" if pnl/100 else "-",
+                        f"€{pnl/100:>+10.2f}" if pnl / 100 else "-",
                         f"€{current_bankroll/100:>10.2f}",
-                        f"€{stats['total_bet']/100:>8.2f}" if stats['total_bet']/100 else "-",
+                        (
+                            f"€{stats['total_bet']/100:>8.2f}"
+                            if stats["total_bet"] / 100
+                            else "-"
+                        ),
                         f"€{stats['profit']/100:>+8.2f}",
                         winning_str,
                         losing_str,
@@ -183,7 +190,7 @@ def print_round_results(round_number: int, results: Dict[str, any]):
 
 
 def run_strategy_comparison(*, num_rounds: int):
-    initial_bankroll: int = 74 * 100 * 2
+    initial_bankroll: int = 74 * 100 * 3
     base_bet: int = 3_00
     """Run simulation with different strategies"""
     casino = Casino()
@@ -209,47 +216,47 @@ def run_strategy_comparison(*, num_rounds: int):
             initial_bankroll=initial_bankroll,
             strategy=DAlembertStrategy(base_bet=base_bet, max_progression=8),
         ),
-        # Player(
-        #     player_id="paroli",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ParoliStrategy(base_bet=base_bet, max_progression=3),
-        # ),
-        # Player(
-        #     player_id="sequence",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=SequenceStrategy("custom_sequence.json", base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="zero",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ZeroTrendStrategy(
-        #         base_bet=base_bet, zero_threshold=5, history_size=100
-        #     ),
-        # ),
-        # Player(
-        #     player_id="fibonacci",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=FibonacciStrategy(base_bet=base_bet, max_progression=4),
-        # ),
-        # Player(
-        #     player_id="labouchere",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=LabouchereStrategy(
-        #         base_bet=base_bet, sequence_length=6, bet_type="red"
-        #     ),
-        # ),
-        # Player(
-        #     player_id="thirds coverage",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ThirdsCoverageStrategy(base_bet=base_bet, max_progression=4),
-        # ),
-        # Player(
-        #     player_id="enhanced zero",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=EnhancedZeroTrendStrategy(
-        #         base_bet=base_bet, zero_threshold=5, history_size=100
-        #     ),
-        # ),
+        Player(
+            player_id="paroli",
+            initial_bankroll=initial_bankroll,
+            strategy=ParoliStrategy(base_bet=base_bet, max_progression=3),
+        ),
+        Player(
+            player_id="sequence",
+            initial_bankroll=initial_bankroll,
+            strategy=SequenceStrategy("custom_sequence.json", base_bet=base_bet),
+        ),
+        Player(
+            player_id="zero",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroTrendStrategy(
+                base_bet=base_bet, zero_threshold=5, history_size=100
+            ),
+        ),
+        Player(
+            player_id="fibonacci",
+            initial_bankroll=initial_bankroll,
+            strategy=FibonacciStrategy(base_bet=base_bet, max_progression=4),
+        ),
+        Player(
+            player_id="labouchere",
+            initial_bankroll=initial_bankroll,
+            strategy=LabouchereStrategy(
+                base_bet=base_bet, sequence_length=6, bet_type="red"
+            ),
+        ),
+        Player(
+            player_id="thirds coverage",
+            initial_bankroll=initial_bankroll,
+            strategy=ThirdsCoverageStrategy(base_bet=base_bet, max_progression=4),
+        ),
+        Player(
+            player_id="enhanced zero",
+            initial_bankroll=initial_bankroll,
+            strategy=EnhancedZeroTrendStrategy(
+                base_bet=base_bet, zero_threshold=5, history_size=100
+            ),
+        ),
         Player(
             player_id="zero wait 10",
             initial_bankroll=initial_bankroll,
@@ -260,16 +267,16 @@ def run_strategy_comparison(*, num_rounds: int):
             initial_bankroll=initial_bankroll,
             strategy=ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=30),
         ),
-        # Player(
-        #     player_id="zero wait 50",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
-        # ),
-        # Player(
-        #     player_id="zero wait 80",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ZeroSimpleStrategy(base_bet=base_bet, zero_threshold=50),
-        # ),
+        Player(
+            player_id="zero wait 50",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=50),
+        ),
+        Player(
+            player_id="zero wait 80",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=80),
+        ),
         Player(
             player_id="james bond",
             initial_bankroll=initial_bankroll,
@@ -281,71 +288,102 @@ def run_strategy_comparison(*, num_rounds: int):
             strategy=ZeroAlwaysStrategy(base_bet=base_bet),
         ),
         Player(
-            player_id="zero and half",
+            player_id="zero 2/3, half 1/3",
             initial_bankroll=initial_bankroll,
-            strategy=ZeroAndHalfStrategy(base_bet=base_bet, max_progression=4, other='black', wait_before_bet=5),
+            strategy=ZeroAndHalfStrategy(
+                base_bet=base_bet,
+                max_progression=4,
+                other="black",
+                wait_before_bet=5,
+                larger_on_zero=True,
+            ),
         ),
-        # Player(
-        #     player_id="wheel sections",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=WheelSectionsStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="hot cold",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=HotColdSectorsStrategy(base_bet=base_bet, sector_size=5),
-        # ),
-        # Player(
-        #     player_id="opposite sectors",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=OppositeSectorsStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="column_pattern",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ColumnPatternStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="dynamic_sectors",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=DynamicSectorsStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="progressive_coverage",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=ProgressiveCoverageStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="split pattern",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=SplitPatternStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="corner momentum",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=CornerMomentumStrategy(base_bet=base_bet, momentum_threshold=3),
-        # ),
-        # Player(
-        #     player_id="multi pattern",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=MultiPatternStrategy(base_bet=base_bet, pattern_memory=30),
-        # ),
-        # Player(
-        #     player_id="sector chain",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=SectorChainStrategy(base_bet=base_bet, chain_size=8),
-        # ),
-        # Player(
-        #     player_id="hybrid_martingale",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=HybridMartingaleStrategy(base_bet=base_bet),
-        # ),
-        # Player(
-        #     player_id="adaptive distribution",
-        #     initial_bankroll=initial_bankroll,
-        #     strategy=AdaptiveDistributionStrategy(base_bet=base_bet),
-        # ),
+        Player(
+            player_id="zero 1/3, half 2/3",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroAndHalfStrategy(
+                base_bet=base_bet,
+                max_progression=4,
+                other="black",
+                wait_before_bet=5,
+                larger_on_zero=False,
+            ),
+        ),
+        Player(
+            player_id="zero timeout",
+            initial_bankroll=initial_bankroll,
+            strategy=ZeroTimeoutStrategy(
+                base_bet=base_bet,
+                max_progression=4,
+                wait_before_bet=5,
+                max_rounds_without_zero=5,
+                timeout_rounds=5,
+            ),
+        ),
+        Player(
+            player_id="wheel sections",
+            initial_bankroll=initial_bankroll,
+            strategy=WheelSectionsStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="hot cold",
+            initial_bankroll=initial_bankroll,
+            strategy=HotColdSectorsStrategy(base_bet=base_bet, sector_size=5),
+        ),
+        Player(
+            player_id="opposite sectors",
+            initial_bankroll=initial_bankroll,
+            strategy=OppositeSectorsStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="column_pattern",
+            initial_bankroll=initial_bankroll,
+            strategy=ColumnPatternStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="dynamic_sectors",
+            initial_bankroll=initial_bankroll,
+            strategy=DynamicSectorsStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="progressive_coverage",
+            initial_bankroll=initial_bankroll,
+            strategy=ProgressiveCoverageStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="split pattern",
+            initial_bankroll=initial_bankroll,
+            strategy=SplitPatternStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="corner momentum",
+            initial_bankroll=initial_bankroll,
+            strategy=CornerMomentumStrategy(base_bet=base_bet, momentum_threshold=3),
+        ),
+        Player(
+            player_id="multi pattern",
+            initial_bankroll=initial_bankroll,
+            strategy=MultiPatternStrategy(base_bet=base_bet, pattern_memory=30),
+        ),
+        Player(
+            player_id="sector chain",
+            initial_bankroll=initial_bankroll,
+            strategy=SectorChainStrategy(base_bet=base_bet, chain_size=8),
+        ),
+        Player(
+            player_id="hybrid martingale",
+            initial_bankroll=initial_bankroll,
+            strategy=HybridMartingaleStrategy(base_bet=base_bet),
+        ),
+        Player(
+            player_id="adaptive distribution",
+            initial_bankroll=initial_bankroll,
+            strategy=AdaptiveDistributionStrategy(base_bet=base_bet),
+        ),
     ]
+    ids = set(p.player_id for p in players)
+    if len(ids) != len(players):
+        raise ValueError("Duplicate player IDs found!")
 
     for player in players:
         casino.add_player(player)
@@ -375,5 +413,137 @@ def run_strategy_comparison(*, num_rounds: int):
     print(f"Completed rounds: {round_num - 1}")
 
 
+def run_multiple_simulations(num_simulations: int, num_rounds: int):
+    """Run multiple simulations and collect statistics."""
+
+    def _gen_players():
+        return [
+            Player(
+                "martingale",
+                initial_bankroll,
+                MartingaleStrategy(base_bet=base_bet, max_progression=4),
+            ),
+            Player(
+                "dalembert",
+                initial_bankroll,
+                DAlembertStrategy(base_bet=base_bet, max_progression=8),
+            ),
+            Player(
+                "zero wait 10",
+                initial_bankroll,
+                ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=10),
+            ),
+            Player(
+                "zero wait 30",
+                initial_bankroll,
+                ZeroSimpleStrategy(base_bet=base_bet, wait_before_bet=30),
+            ),
+            Player(
+                "james bond", initial_bankroll, JamesBondStrategy(base_bet=base_bet)
+            ),
+            Player(
+                "zero all time", initial_bankroll, ZeroAlwaysStrategy(base_bet=base_bet)
+            ),
+            Player(
+                "zero and half",
+                initial_bankroll,
+                ZeroAndHalfStrategy(
+                    base_bet=base_bet,
+                    max_progression=4,
+                    other="black",
+                    wait_before_bet=5,
+                ),
+            ),
+        ]
+
+    initial_bankroll: int = 74 * 100 * 2
+    base_bet: int = 3_00
+    final_stats = {}
+    for player in _gen_players():
+        final_stats[player.player_id] = {
+            "survived": 0,
+            "avg_rounds": 0,
+            "total_profit": 0,
+        }
+
+    for sim in range(num_simulations):
+        casino = Casino()
+        players = _gen_players()
+        active_players = {p.player_id: True for p in players}
+        for player in players:
+            casino.add_player(player)
+
+        round_num = 1
+        while round_num <= num_rounds:
+            casino.assign_players()
+
+            # Track which players are still active
+            for player in players:
+                if player.should_leave():
+                    active_players[player.player_id] = False
+                else:
+                    final_stats[player.player_id]["avg_rounds"] += 1
+
+            # Check if any players remain
+            if not any(active_players.values()) and not casino.waiting_players:
+                break
+
+            results_dict = casino.simulate_round()
+
+            # Update profit tracking
+            for table_results in results_dict.values():
+                for player_id, stats in table_results.get(
+                    "players_results", {}
+                ).items():
+                    final_stats[player_id]["total_profit"] += stats["profit"]
+
+            round_num += 1
+
+        # Record which strategies survived
+        for player_id, active in active_players.items():
+            if active:
+                final_stats[player_id]["survived"] += 1
+
+    # Calculate final statistics
+    for strategy in final_stats:
+        final_stats[strategy]["survival_rate"] = (
+            final_stats[strategy]["survived"] / num_simulations
+        ) * 100
+        final_stats[strategy]["avg_rounds"] = (
+            final_stats[strategy]["avg_rounds"] // num_simulations
+        )
+        final_stats[strategy]["avg_profit"] = final_stats[strategy]["total_profit"] / (
+            num_simulations * 100
+        )  # Convert to euros
+
+    return final_stats
+
+
+def print_simulation_results(results: dict):
+    """Print formatted simulation results."""
+    print("\nSimulation Results:")
+    print("-" * 80)
+    print(
+        f"{'Strategy':<15} {'Survival %':>10} {'Avg Rounds':>12} {'Avg Profit €':>12}"
+    )
+    print("-" * 80)
+
+    # Sort by survival rate
+    sorted_results = sorted(
+        results.items(), key=lambda x: x[1]["survival_rate"], reverse=True
+    )
+
+    for strategy, stats in sorted_results:
+        print(
+            f"{strategy:<15} {stats['survival_rate']:>10.2f} {stats['avg_rounds']:>12.0f} {stats['avg_profit']:>12.2f}"
+        )
+
+
 if __name__ == "__main__":
-    run_strategy_comparison(num_rounds=200)
+    # NUM_SIMULATIONS = 200
+    # NUM_ROUNDS = 300
+    #
+    # print(f"Running {NUM_SIMULATIONS} simulations of {NUM_ROUNDS} rounds each...")
+    # results = run_multiple_simulations(NUM_SIMULATIONS, NUM_ROUNDS)
+    # print_simulation_results(results)
+    run_strategy_comparison(num_rounds=300)

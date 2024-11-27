@@ -30,9 +30,7 @@ class Player:
 
     def should_leave(self) -> bool:
         """Determine if player should leave the table"""
-        if self.get_current_bankroll() < self.strategy.base_bet:
-            return True
-        return False
+        return self.get_current_bankroll() < self.strategy.base_bet
 
     def calculate_bets(self) -> list[PlacedBet]:
         """Get bets from strategy"""

@@ -13,12 +13,24 @@ class RouletteTable:
     ]
     RED_NUMBERS = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}
     BLACK_NUMBERS = {2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35}
+    PAYOUTS = {
+        "straight": 35,  # Straight up (single number)
+        "split": 17,  # Split bet (2 numbers)
+        "street": 11,  # Street bet (3 numbers)
+        "corner": 8,  # Corner bet (4 numbers)
+        "sixline": 5,  # Six line bet (6 numbers)
+        "column": 2,  # Column bet (12 numbers)
+        "dozen": 2,  # Dozen bet (12 numbers)
+        "color": 1,  # Red/Black (18 numbers)
+        "even_odd": 1,  # Even/Odd (18 numbers)
+        "half": 1,  # 1-18/19-36 (18 numbers)
+        "neighbours": 6,  # Neighbors
+    }
 
     def __init__(self):
         self.current_number: int | None = None
         self._validate_wheel()
         self.bets: Dict[str, Set[int]] = {}
-        self.payouts: Dict[str, int] = self._initialize_payouts()
         self._initialize_bets()
 
     def _validate_wheel(self) -> None:
@@ -28,29 +40,6 @@ class RouletteTable:
             raise ValueError("Red and black numbers overlap")
         if self.RED_NUMBERS | self.BLACK_NUMBERS != set(range(1, 37)):
             raise ValueError("Missing numbers in red/black sets")
-
-    @staticmethod
-    def _initialize_payouts() -> Dict[str, int]:
-        """
-        Initialize payout multipliers according to French/European roulette rules.
-        These are the ADDITIONAL winnings multipliers (excluding the original bet).
-        For example:
-        - A bet of 100 on a number that wins will return: 100 + (100 * 35) = 3600
-        - A bet of 100 on a dozen that wins will return: 100 + (100 * 2) = 300
-        """
-        return {
-            "straight": 35,  # Plein (1 numéro)
-            "split": 17,  # À cheval (2 numéros)
-            "street": 11,  # Transversale (3 numéros)
-            "corner": 8,  # Carré (4 numéros)
-            "sixline": 5,  # Sixain (6 numéros)
-            "column": 2,  # Colonne (12 numéros)
-            "dozen": 2,  # Douzaine (12 numéros)
-            "color": 1,  # Rouge/Noir (18 numéros)
-            "even_odd": 1,  # Pair/Impair (18 numéros)
-            "half": 1,  # 1-18/19-36 (18 numéros)
-            "neighbours": 6,  # Voisins
-        }
 
     def _initialize_bets(self) -> None:
         # Outside bets
@@ -160,27 +149,27 @@ class RouletteTable:
     def get_payout(self, bet_type: str) -> int:
         bet_category = bet_type.split("_")[0]
         if bet_category == "straight":
-            return self.payouts["straight"]
+            return RouletteTable.PAYOUTS["straight"]
         elif bet_category == "split":
-            return self.payouts["split"]
+            return RouletteTable.PAYOUTS["split"]
         elif bet_category == "street":
-            return self.payouts["street"]
+            return RouletteTable.PAYOUTS["street"]
         elif bet_category == "corner":
-            return self.payouts["corner"]
+            return RouletteTable.PAYOUTS["corner"]
         elif bet_category == "sixline":
-            return self.payouts["sixline"]
+            return RouletteTable.PAYOUTS["sixline"]
         elif bet_category == "neighbours":
-            return self.payouts["neighbours"]
+            return RouletteTable.PAYOUTS["neighbours"]
         elif bet_category in ["first", "second", "third"]:
-            return self.payouts["dozen"]
+            return RouletteTable.PAYOUTS["dozen"]
         elif bet_category == "column":
-            return self.payouts["column"]
+            return RouletteTable.PAYOUTS["column"]
         elif bet_category in ["red", "black"]:
-            return self.payouts["color"]
+            return RouletteTable.PAYOUTS["color"]
         elif bet_category in ["even", "odd"]:
-            return self.payouts["even_odd"]
+            return RouletteTable.PAYOUTS["even_odd"]
         elif bet_category in ["low", "high"]:
-            return self.payouts["half"]
+            return RouletteTable.PAYOUTS["half"]
         else:
             raise ValueError(f"Unknown bet type: {bet_type}")
 
